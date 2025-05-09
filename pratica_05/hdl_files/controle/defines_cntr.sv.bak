@@ -1,0 +1,16 @@
+`ifndef DEFINES_CNTR_SV
+`define DEFINES_CNTR_SV
+
+typedef enum logic [2:0] {
+   ST_IDLE    		   = 3'b000, 
+	ST_READ_A_AND_B    = 3'b001,
+	ST_INICIAR_CALCULO = 3'b010,
+	ST_ESPERANDO_FIM   = 3'b011,
+	ST_GUARDA_Y		   = 3'b100,
+	ST_ESCREVE_STATUS  = 3'b101,
+	ST_CONTR		   = 3'b110,
+	ST_END			   = 3'b111
+} estado_t;
+
+`endif
+

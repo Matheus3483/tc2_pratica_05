@@ -1,0 +1,107 @@
+`include "./defines_cntr.sv"
+
+
+module controle_ram
+(
+    input          	    clk_i,
+    input          	    rst_i,
+    input          	    en_i,
+    input          	    fim_i,
+	output	estado_t 	state_o
+);
+
+// INTERNAL SIGNALS ################################
+
+estado_t  state, next_state;
+
+// INTERNAL LOGIC ##################################
+
+// Output logic
+assign state_o = state;
+
+//#################### SEQUENTIAL LOGIC
+
+    // state update and reset
+    always @(posedge clk_i, negedge rst_i) 
+	 begin
+        if (rst_i == 1'b0)
+            state <= ST_IDLE_S;
+        else
+            state <= next_state;
+    end
+
+
+
+    // transiction logic
+    always @(en_i, fim_i, state) begin
+        case (state)
+            ST_IDLE_S:
+            begin
+                if(en_i)
+						begin
+                    next_state   <=  ST_READ_A_AND_B;
+						end
+                else
+						begin
+                    next_state   <=  ST_IDLE_S;
+						end
+            end    
+				
+            ST_READ_A_AND_B:
+            begin	
+               next_state     <= ST_INICIAR_CALCULO ;
+            end
+				
+			ST_INICIAR_CALCULO:
+            begin	
+               next_state     <= ST_ESPERANDO_FIM ;
+            end
+				
+			ST_ESPERANDO_FIM:
+            begin	
+                if(fim_i)
+                begin
+                    next_state <= ST_GUARDA_Y;
+                end
+                else
+                begin
+                    next_state <= ST_ESPERANDO_FIM;
+                end
+            end
+				
+			ST_GUARDA_Y:
+            begin	
+               next_state     <= ST_ESCREVE_STATUS;
+            end
+
+            ST_ESCREVE_STATUS:
+            begin
+                next_state <= ST_CONTR;
+            end
+            
+            ST_CONTR:
+            begin
+                if(en_i)
+				begin
+                    next_state   <=  ST_CONTR;
+				end
+                else
+				begin
+                    next_state   <=  ST_END_S;
+				end
+            end
+
+            ST_END_S:
+            begin
+                next_state   <=  ST_IDLE_S;
+            end
+
+            default: 
+            begin   
+                next_state     <= ST_IDLE_S;
+            end
+        endcase
+    end
+
+endmodule
+
